@@ -1,4 +1,4 @@
-# Test2d
+# Test2d - Prototype
 
 Data driven 2D diagram editor.
 
