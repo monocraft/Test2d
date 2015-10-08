@@ -109,7 +109,8 @@ namespace TestWinForms
             _drawable.InvalidateContainer = InvalidateContainer;
             _drawable.Initialize();
 
-            _drawable.Anchor = System.Windows.Forms.AnchorStyles.None;
+            _drawable.Anchor = (AnchorStyles.Top|AnchorStyles.Left);
+            _drawable.Dock = DockStyle.Fill;
             _drawable.Name = "containerPanel";
             _drawable.TabIndex = 0;
 
@@ -679,5 +680,103 @@ namespace TestWinForms
             }
             return null;
         }
+
+        #region [Testing]
+        public void _testrendering()
+        {
+            List<double> x = new List<double>(),
+                         y = new List<double>(),
+                         z = new List<double>();
+
+            x.Add(5.31E-04F);
+            x.Add(25.581153F);
+            x.Add(52.471346F);
+            x.Add(79.532937F);
+            x.Add(106.8682F);
+            x.Add(146.13019F);
+            x.Add(173.5059F);
+            x.Add(206.2034F);
+            x.Add(236.15716F);
+            x.Add(266.12751F);
+            x.Add(296.10766F);
+
+            y.Add(0F);
+            y.Add(23.073F);
+            y.Add(47.316F);
+            y.Add(70.958F);
+            y.Add(95.561F);
+            y.Add(129.898F);
+            y.Add(154.082F);
+            y.Add(183.04F);
+            y.Add(209.667F);
+            y.Add(236.482F);
+            y.Add(262.677F);
+
+            var context = DataContext as EditorContext;
+            var container = context.Editor.Project.CurrentContainer;
+            //Find the radius of the control by dividing the width by 2 
+            double radius = 189.12;
+
+            //Find the origin of the circle by dividing the width and height of the control 
+            XPoint origin = XPoint.Create(container.Width / 2, container.Height / 2);
+
+            if (context == null)
+                Debug.Write("---Failed--- Context is null");
+            var factory = new Factory(context);
+            var line1style = ShapeStyle.Create("line1", 255, 0, 0, 00, 255, 0, 0, 0, 2.0, TextStyle.Create("linet1", "Swis721 Ex BT", "SWZ721BE.TTF", 26.0, (Test2d.FontStyle.Bold | Test2d.FontStyle.Bold)), null, null, null, Test2d.LineCap.Square);
+            var line2style = ShapeStyle.Create("line2", 255, 0, 0, 00, 255, 0, 0, 0, 20.0, TextStyle.Create("linet2", "Swis721 Ex BT", "SWZ721BE.TTF", 14.0, (Test2d.FontStyle.Bold | Test2d.FontStyle.Italic)), null, null, null, Test2d.LineCap.Square);
+            var line3style = ShapeStyle.Create("line3", 255, 0, 0, 00, 255, 0, 0, 0, 10.0, TextStyle.Create("linet3", "Swis721 Ex BT", "SWZ721BE.TTF", 14.0, (Test2d.FontStyle.Bold | Test2d.FontStyle.Italic)), null, null, null, Test2d.LineCap.Square);
+            var line4style = ShapeStyle.Create("line4", 255, 0, 0, 00, 255, 0, 0, 0, 1.0, TextStyle.Create("linet4", "Swis721 BlkCn BT", "SWZ721BE.TTF", 26.0, (Test2d.FontStyle.Bold)), null, null, null, Test2d.LineCap.Square);
+
+            //Draw the Major segments for the clock 
+            //Why pan and zoom mark is all weird...
+            foreach (float note in y)
+            {
+                var tick = factory.Line(PointOnCircle(radius - 1, note, origin), PointOnCircle(radius - 34.944, note, origin));
+                tick.Style = line1style;
+                var tick2 = factory.Line(PointOnCircle(radius - 4.005, note, origin), PointOnCircle(radius - 6.32, note, origin));
+                tick2.Style = line2style;
+                var tick3 = factory.Line(PointOnCircle(radius - 4.005, note, origin), PointOnCircle(radius - 20, note, origin));
+                tick3.Style = line3style;
+                var tick4 = factory.Text(PointOnCircle(radius - 1, note, origin), PointOnCircle(radius - 170, note, origin), note.ToString("#"), false);
+                tick4.Style = line4style;
+            }
+
+            //Draw the minor segments for the control 
+            for (float i = 0f; i != 360f; i += 10f)
+            {
+                var tick5 = factory.Line(PointOnCircle(radius - 1, i, origin), PointOnCircle(radius - 19.584, i, origin));
+                tick5.Style = line1style;
+            }
+
+        }
+
+        /// <summary> 
+        /// Find the point on the circumference of a circle 
+        /// </summary> 
+        /// <param name="radius">The radius of the circle</param> 
+        /// <param name="angleInDegrees">The angle of the point to origin</param> 
+        /// <param name="origin">The origin of the circle</param> 
+        /// <returns>Return the point</returns> 
+        private XPoint PointOnCircle(double radius, double angleInDegrees, XPoint origin)
+        {
+            //Find the x and y using the parametric equation for a circle 
+            double x = (radius * Math.Cos((angleInDegrees - 90f) * Math.PI / 180F)) + origin.X;
+            double y = (radius * Math.Sin((angleInDegrees - 90f) * Math.PI / 180F)) + origin.Y;
+
+            /*Note : The "- 90f" is only for the proper rotation of the clock. 
+             * It is not part of the parament equation for a circle*/
+
+            //Return the point 
+            return XPoint.Create(x, y);
+        }
+
+        #endregion
+
+        private void renderTestToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _testrendering();
+        }
+
     }
 }
